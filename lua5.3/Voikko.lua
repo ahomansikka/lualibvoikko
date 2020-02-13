@@ -339,8 +339,55 @@ function P.set_suggestion_strategy (suggestion_strategy)
     set_boolean_option (8, true)
   end
 end
+
+
+-- Return a list of language codes representing the languages for which
+-- at least one dictionary is available for spell checking.
+-- The codes conform to those specified in BCP 47. Typically the returned
+-- codes consist only of BCP 47 language subtags. They may also include
+-- tags in format Language-Script, Language-Region or Language-Script-Region
+-- if such variants are widely used for a particular language.
+-- @param path path to a directory from which dictionary files should be searched
+--        first before looking into the standard dictionary locations.
+--
+function P.list_supported_spelling_languages (path)
+  return lualibvoikko.voikko_list_supported_spelling_languages (path)
+end
+
+
+-- Same as list_supported_spelling_languages but for hyphenation.
+--
+function P.list_supported_hyphenation_languages (path)
+  return lualibvoikko.voikko_list_supported_hyphenation_languages (path)
+end
+
+
+-- Same as list_supported_spelling_languages but for grammar checking.
+--
+function P.list_supported_grammar_checking_languages (path)
+  return lualibvoikko.voikko_list_supported_grammar_checking_languages (path)
+end
+
+
+-- Get list of possible attribute values in morphological analysis.
+-- @param attribute_name name of morphological analysis attribute
+-- Return a table of possible attribute values for attribute in morphological analysis.
+-- If the attribute does not exist or it does not have a known finite set of possible values returns nil.
+--
+function P.get_attribute_values (attribute_name)
+  return lualibvoikko.voikko_get_attribute_values (attribute_name)
+end
+
 -------------------------------------------------------------------------------
 -- The following functions are additions to function declared in file voikko.h.
+
+
+function P.print_table (table)
+  assert (not (table == nil))
+  for i, v in pairs (table) do
+    print (i, v)
+  end
+end
 
 
 -- Prints a nested table returned by functions

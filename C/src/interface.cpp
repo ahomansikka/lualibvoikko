@@ -51,6 +51,57 @@ std::string fix_value (const char *key, const char *value)
 
 const char *HANDLE = "HANDLE";
 
+
+/** Gets Voikko handle from stack.
+*/
+inline VoikkoHandle *get_handle (lua_State *L)
+{
+  lua_pushlightuserdata (L, &HANDLE);
+  lua_gettable (L, LUA_REGISTRYINDEX);
+  return (VoikkoHandle *)lua_touserdata (L, -1);
+}
+
+
+void make_table (lua_State *L, char **list)
+{
+  lua_newtable (L);
+  int i = 1;
+  for (char **s = list; *s; s++) {
+    lua_pushstring (L, *s);
+    lua_rawseti (L, -2, i++);
+  }
+}
+
+
+template <typename Function>
+int get_list (lua_State *L, Function f)
+{
+  const char *path = luaL_checkstring (L, 1);
+  char **list = f (path);
+  if (list != NULL) {
+    make_table (L, list);
+    voikkoFreeCstrArray (list);
+    return 1;
+  }
+  return 0;
+}
+
+
+template <typename Function>
+int get_list2 (lua_State *L, Function f)
+{
+  const char *string = luaL_checkstring (L, 1);
+  VoikkoHandle *handle = get_handle (L);
+  char **list = f (handle, string);
+  if (list != NULL) {
+    make_table (L, list);
+    voikkoFreeCstrArray (list);
+    return 1;
+  }
+  return 0;
+}
+
+
 /** Initialises libvoikko.
 
 Calls VoikkoHandle *handle = voikkoInit (&error, langcode, path);
@@ -83,16 +134,6 @@ int lualibvoikko_init (lua_State *L)
     lua_settable (L, LUA_REGISTRYINDEX);
     return 0;
   }
-}
-
-
-/** Gets Voikko handle from stack.
-*/
-inline VoikkoHandle *get_handle (lua_State *L)
-{
-  lua_pushlightuserdata (L, &HANDLE);
-  lua_gettable (L, LUA_REGISTRYINDEX);
-  return (VoikkoHandle *)lua_touserdata (L, -1);
 }
 
 
@@ -165,22 +206,7 @@ Returns the suggestions in a stack as a Lua table.
 */
 int lualibvoikko_suggest_cstr (lua_State *L)
 {
-  const char *word = luaL_checkstring (L, 1);
-//  printf ("Sana %s\n", word);
-  VoikkoHandle *handle = get_handle (L);
-  char **suggestions = voikkoSuggestCstr (handle, word);
-  if (suggestions != NULL) {
-    lua_newtable (L);
-    int i = 1;
-    for (char **s = suggestions; *s; s++) {
-//      printf ("A %s\n", *s);
-      lua_pushstring (L, *s);
-      lua_rawseti (L, -2, i++);
-    }
-    voikkoFreeCstrArray (suggestions);
-    return 1;
-  }
-  return 0;
+  return get_list2 (L, &voikkoSuggestCstr);
 }
 
 
@@ -271,6 +297,39 @@ int lualibvoikko_analyze_word_cstr (lua_State *L)
 }
 
 
+/**
+ * Calls list = voikkoListSupportedSpellingLanguages (path)
+ * path = stack(1)
+ * Return sa table of language codes.
+ */
+int lualibvoikko_list_supported_spelling_languages (lua_State *L)
+{
+  return get_list (L, &voikkoListSupportedSpellingLanguages);
+}
+
+
+/**
+ * Calls list = voikkoListSupportedHyphenationLanguages (path)
+ * path = stack(1)
+ * Return sa table of language codes.
+ */
+int lualibvoikko_list_supported_hyphenation_languages (lua_State *L)
+{
+  return get_list (L, &voikkoListSupportedHyphenationLanguages);
+}
+
+
+/**
+ * Calls list = voikkoListSupportedGrammarCheckingLanguages (path)
+ * path = stack(1)
+ * Return sa table of language codes.
+ */
+int lualibvoikko_list_supported_grammar_checking_languages (lua_State *L)
+{
+  return get_list (L, &voikkoListSupportedGrammarCheckingLanguages);
+}
+
+
 /** Calls voikkoGetVersion();
 
 and returns he result (string) in stack.
@@ -280,6 +339,17 @@ int lualibvoikko_get_version (lua_State *L)
   const char *version = voikkoGetVersion();
   lua_pushstring (L, version);
   return 1;
+}
+
+
+/** Calls (voikkoGetAttributeValues (handle, attributeName)
+and returns the values as a table.
+
+attributeName == stack(1) (string)
+*/
+int lualibvoikko_get_attribute_values (lua_State *L)
+{
+  return get_list2 (L, &voikkoGetAttributeValues);
 }
 
 
@@ -294,6 +364,10 @@ const struct luaL_Reg lualibvoikko[] = {
   {"voikko_insert_hyphens",     lualibvoikko_insert_hyphens_cstr},
   {"voikko_analyse_word",       lualibvoikko_analyze_word_cstr},
   {"voikko_get_version",        lualibvoikko_get_version},
+  {"voikko_list_supported_spelling_languages",    lualibvoikko_list_supported_spelling_languages},
+  {"voikko_list_supported_hyphenation_languages", lualibvoikko_list_supported_hyphenation_languages},
+  {"voikko_list_supported_grammar_checking_languages", lualibvoikko_list_supported_grammar_checking_languages},
+  {"voikko_get_attribute_values", lualibvoikko_get_attribute_values},
   {NULL, NULL}
 };
 }

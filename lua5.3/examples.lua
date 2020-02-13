@@ -17,7 +17,8 @@
 require "Voikko"
 
 Voikko.init ("fi", "/usr/local/lib/voikko")
-print ("suggest", Voikko.suggest (""))
+s = Voikko.suggest ("voikkon")
+Voikko.print_table (s)
 print ("===============")
 
 print ("spell0", Voikko.spell (""))
@@ -38,6 +39,23 @@ end
 
 
 t = Voikko.get_analysis_keys (analysis)
-Voikko.print_nested_table(t)
+Voikko.print_nested_table (t)
+
+
+t = Voikko.list_supported_spelling_languages ("/usr/local/lib/voikko")
+Voikko.print_table (t)
+
+t = Voikko.list_supported_hyphenation_languages ("/usr/local/lib/voikko")
+Voikko.print_table (t)
+
+t = Voikko.list_supported_grammar_checking_languages ("/usr/local/lib/voikko")
+Voikko.print_table (t)
+
+
+print ("get_attribute_values")
+t = Voikko.get_attribute_values ("CLASS")
+if not (t == nil) then
+  Voikko.print_table (t)
+end
 
 Voikko.terminate()
