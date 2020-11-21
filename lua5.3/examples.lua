@@ -14,7 +14,7 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require "Voikko"
+Voikko = require "Voikko"
 
 Voikko.init ("fi", "/usr/local/lib/voikko")
 s = Voikko.suggest ("voikkon")
@@ -54,6 +54,20 @@ Voikko.print_table (t)
 
 print ("get_attribute_values")
 t = Voikko.get_attribute_values ("CLASS")
+if not (t == nil) then
+  Voikko.print_table (t)
+end
+
+
+-- Palautetaan vain tulos, joka on paikannimi.
+--
+function f (a)
+  return a["CLASS"] == "paikannimi"
+end
+
+print ("get_analysis_result")
+analysis = Voikko.analyse_word ("Karjala")
+t = Voikko.get_analysis_result (analysis, f, "BASEFORM")
 if not (t == nil) then
   Voikko.print_table (t)
 end

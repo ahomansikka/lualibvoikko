@@ -26,15 +26,13 @@
 --    Use spell/suggest/hyphenate.
 -- Voikko.terminate()
 
-local P = {}
-
-
 -- Add path to a folder where files liblualibvoikko.so and libvoikko.so are.
 --
 package.cpath = "/usr/local/lib/?.so;" .. package.cpath
 
 require "liblualibvoikko"
 
+local P = {}
 Voikko = P
 
 
@@ -405,7 +403,7 @@ end
 
 -- Get a property of analysis result(s).
 -- @param analysis  Value returned by function analyse_word(word).
--- @param key       Key of a property whose value is wanted.
+-- @param key       Key of a property whose value is wanted, e.g. "BASEFORM".
 -- @return a table of values of property 'key'.
 --
 function P.get_analysis_property_value (analysis, key)
@@ -418,6 +416,24 @@ function P.get_analysis_property_value (analysis, key)
         table.insert (values, w)
 --        print (w)
       end
+    end
+  end
+  return values
+end
+
+-- Get a property of selected analysis result(s).
+-- Example of usage is at the end of file examples.lua.
+-- @param analysis  Value returned by function analyse_word(word).
+-- @param f         Function that returns true if analysis result is to be selected.
+-- @param key       Key of a property whose value is wanted, e.g. "BASEFORM".
+-- @return a table of values of property 'key'.
+--
+function P.get_analysis_result (analysis, f, key)
+  assert (not (analysis == nil))
+  local values = {}
+  for i, v in pairs (analysis) do
+    if f(analysis[i]) then
+      table.insert (values, analysis[i][key])
     end
   end
   return values
