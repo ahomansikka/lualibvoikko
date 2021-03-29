@@ -9,7 +9,14 @@ You can run the examples like this
 lua5.3 examples.lua
 
 
-Copyright (©) 2020 Hannu Väisänen
+You should define environment variables LUA_PATH and LUA_CPATH so that
+lua finds Voikko.lua and lualibvoikko.so, for example (in file .bashrc)
+
+export LUA_PATH="/usr/local/lib/lua5.3/?.lua;;"
+export LUA_CPATH="/usr/local/lib/?.so;;"
+
+
+Copyright (©) 2020, 2021 Hannu Väisänen
 
 Lualibvoikko is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the

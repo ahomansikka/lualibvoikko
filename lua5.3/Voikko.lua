@@ -1,4 +1,4 @@
--- Copyright (©) 2020 Hannu Väisänen
+-- Copyright (©) 2020, 2021 Hannu Väisänen
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -26,9 +26,6 @@
 --    Use spell/suggest/hyphenate.
 -- Voikko.terminate()
 
--- Add path to a folder where files liblualibvoikko.so and libvoikko.so are.
---
-package.cpath = "/usr/local/lib/?.so;" .. package.cpath
 
 require "liblualibvoikko"
 
